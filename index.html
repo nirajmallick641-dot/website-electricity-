@@ -2,13 +2,12 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>AI Electricity Theft Detection - Advanced</title>
+<title>AI Electricity Theft Detection - Future Dashboard</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap');
-
 body{
     margin:0;
     font-family:'Orbitron', sans-serif;
@@ -17,30 +16,24 @@ body{
     animation: gradientMove 15s ease infinite;
     color:white;
 }
-
 @keyframes gradientMove {
     0%{background-position:0% 50%;}
     50%{background-position:100% 50%;}
     100%{background-position:0% 50%;}
 }
-
 header{
     padding:20px;
     text-align:center;
     font-size:24px;
-    letter-spacing:2px;
     background: rgba(0,0,0,0.3);
     backdrop-filter: blur(10px);
-    border-bottom:1px solid rgba(255,255,255,0.2);
 }
-
 .container{
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
     gap:25px;
     padding:30px;
 }
-
 .card{
     background: rgba(255,255,255,0.08);
     border:1px solid rgba(255,255,255,0.2);
@@ -48,14 +41,12 @@ header{
     padding:25px;
     backdrop-filter: blur(15px);
     box-shadow: 0 0 20px rgba(0,255,255,0.2);
-    transition: all 0.3s ease;
+    transition: 0.3s;
 }
-
 .card:hover{
     transform: translateY(-5px);
     box-shadow: 0 0 30px rgba(0,255,255,0.6);
 }
-
 button{
     padding:10px 22px;
     border:none;
@@ -64,70 +55,96 @@ button{
     font-weight:bold;
     background: linear-gradient(45deg, #00f5ff, #0088ff);
     color:black;
-    transition: 0.3s ease;
     box-shadow:0 0 15px #00f5ff;
 }
-
-button:hover{
-    transform: scale(1.05);
-    box-shadow:0 0 25px #00f5ff;
-}
-
 input,select{
     padding:10px;
     border-radius:20px;
     border:none;
-    outline:none;
     background: rgba(255,255,255,0.15);
     color:white;
     width:100%;
     margin-top:10px;
 }
-
 .alert-active{
     background: linear-gradient(45deg, #ff0000, #ff6a00) !important;
     animation: pulse 1s infinite;
 }
-
 @keyframes pulse{
     0%{box-shadow:0 0 10px red;}
     50%{box-shadow:0 0 30px red;}
     100%{box-shadow:0 0 10px red;}
 }
-
-table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:15px;
-}
-
-td,th{
-    border:1px solid rgba(255,255,255,0.2);
-    padding:8px;
-    text-align:center;
-}
-
 #alertBox{
     padding:15px;
     border-radius:15px;
     background: linear-gradient(45deg, #00ff99, #00cc66);
     font-weight:bold;
     text-align:center;
-    box-shadow:0 0 20px #00ff99;
-                     }
-    
+}
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:15px;
+}
+td,th{
+    border:1px solid rgba(255,255,255,0.2);
+    padding:8px;
+    text-align:center;
+}
+
+/* Radar */
+.radar{
+    position:relative;
+    width:250px;
+    height:250px;
+    margin:auto;
+    border-radius:50%;
+    background: rgba(0,255,0,0.05);
+    overflow:hidden;
+}
+.radar-circle{
+    position:absolute;
+    width:100%;
+    height:100%;
+    border:1px solid rgba(0,255,0,0.3);
+    border-radius:50%;
+}
+.radar-circle:nth-child(2){transform:scale(0.7);}
+.radar-circle:nth-child(3){transform:scale(0.4);}
+.radar-sweep{
+    position:absolute;
+    width:100%;
+    height:100%;
+    background: conic-gradient(rgba(0,255,0,0.4) 0deg, transparent 60deg);
+    border-radius:50%;
+    animation: sweep 2s linear infinite;
+}
+@keyframes sweep{
+    from{ transform:rotate(0deg); }
+    to{ transform:rotate(360deg); }
+}
+.radar-dot{
+    position:absolute;
+    width:10px;
+    height:10px;
+    background:#00ff00;
+    border-radius:50%;
+    box-shadow:0 0 10px #00ff00;
+    opacity:0;
+}
 </style>
 </head>
 
 <body>
 
-<header>AI Electricity Theft Detection - Advanced Dashboard</header>
+<header>⚡ AI Electricity Theft Detection - Smart Grid Control Center</header>
 
 <div class="container">
 
 <div class="card">
 <h3>Admin Login</h3>
-<input type="password" id="adminPass" placeholder="Enter Admin Password">
+<input type="password" id="adminPass" placeholder="Enter Password">
 <button onclick="login()">Login</button>
 <p id="loginStatus"></p>
 </div>
@@ -147,9 +164,7 @@ td,th{
 
 <div class="card">
 <h3>Live Alert</h3>
-<div id="alertBox" style="padding:15px;border-radius:10px;background:#14532d;">
-System Normal
-</div>
+<div id="alertBox">System Normal</div>
 </div>
 
 <div class="card">
@@ -158,15 +173,22 @@ System Normal
 </div>
 
 <div class="card">
+<h3>Radar Detection</h3>
+<div class="radar">
+    <div class="radar-circle"></div>
+    <div class="radar-circle"></div>
+    <div class="radar-circle"></div>
+    <div class="radar-sweep"></div>
+    <div class="radar-dot" id="radarDot"></div>
+</div>
+</div>
+
+<div class="card">
 <h3>Alert History</h3>
 <button onclick="exportCSV()">Export CSV</button>
 <table>
 <thead>
-<tr>
-<th>Time</th>
-<th>Zone</th>
-<th>Status</th>
-</tr>
+<tr><th>Time</th><th>Zone</th><th>Status</th></tr>
 </thead>
 <tbody id="historyTable"></tbody>
 </table>
@@ -175,10 +197,7 @@ System Normal
 </div>
 
 <script>
-let audioContext;
-let analyser;
-let microphone;
-let dataArray;
+let audioContext, analyser, microphone, dataArray;
 let monitoring=false;
 let alertCounter=0;
 let historyData=[];
@@ -186,31 +205,26 @@ let chart;
 let lastAlertTime=0;
 
 function login(){
-    let pass=document.getElementById("adminPass").value;
-    if(pass==="admin123"){
+    if(document.getElementById("adminPass").value==="admin123"){
         localStorage.setItem("adminLogged","true");
         document.getElementById("loginStatus").innerText="Login Successful";
-    }else{
+    } else {
         document.getElementById("loginStatus").innerText="Wrong Password";
     }
 }
-    function startMonitoring(){
+
+function startMonitoring(){
     if(localStorage.getItem("adminLogged")!=="true"){
         alert("Login First!");
         return;
     }
-
     if(monitoring) return;
 
     navigator.mediaDevices.getUserMedia({
-        audio:{
-            echoCancellation:false,
-            noiseSuppression:false,
-            autoGainControl:false
-        }
+        audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}
     })
     .then(stream=>{
-        audioContext=new (window.AudioContext || window.webkitAudioContext)();
+        audioContext=new (window.AudioContext||window.webkitAudioContext)();
         analyser=audioContext.createAnalyser();
         microphone=audioContext.createMediaStreamSource(stream);
         microphone.connect(analyser);
@@ -223,68 +237,41 @@ function login(){
         initChart();
         monitorSound();
     })
-    .catch(()=>{
-        alert("Microphone permission denied or not supported.");
-    });
-    }
-    
-    function monitorSound(){
-    if(!monitoring) return;
-
-    analyser.getByteFrequencyData(dataArray);
-
-    let sum = 0;
-    for(let i=0;i<dataArray.length;i++){
-        sum += dataArray[i];
-    }
-
-    let avg = sum / dataArray.length;
-
-    updateChart(avg);
-
-    let now = Date.now();
-
-    // Lower threshold for better detection
-    if(avg > 40 && now - lastAlertTime > 3000){
-        lastAlertTime = now;
-        triggerAlert();
-    }
-
-    requestAnimationFrame(monitorSound);
-    }
-    
+    .catch(()=>alert("Microphone permission denied."));
+}
 
 function initChart(){
     const ctx=document.getElementById('soundChart').getContext('2d');
     chart=new Chart(ctx,{
         type:'line',
-        data:{
-            labels:[],
-            datasets:[{
-                label:'High Frequency Level',
-                data:[],
-                borderWidth:2
-            }]
-        },
-        options:{
-            animation:false,
-            responsive:true,
-            scales:{
-                y:{beginAtZero:true}
-            }
-        }
+        data:{labels:[],datasets:[{label:'Sound Level',data:[],borderWidth:2}]},
+        options:{animation:false,responsive:true,scales:{y:{beginAtZero:true}}}
     });
 }
 
+function monitorSound(){
+    if(!monitoring) return;
+    analyser.getByteFrequencyData(dataArray);
+
+    let sum=0;
+    for(let i=0;i<dataArray.length;i++) sum+=dataArray[i];
+    let avg=sum/dataArray.length;
+
+    updateChart(avg);
+
+    let now=Date.now();
+    if(avg>40 && now-lastAlertTime>3000){
+        lastAlertTime=now;
+        triggerAlert();
+    }
+    requestAnimationFrame(monitorSound);
+}
 
 function updateChart(value){
-    if(!chart) return;
-
     if(chart.data.labels.length>40){
         chart.data.labels.shift();
         chart.data.datasets[0].data.shift();
     }
-
     chart.data.labels.push('');
     chart.data.datasets[0].data.push(value);
     chart.update();
@@ -295,19 +282,24 @@ function triggerAlert(){
     alertBox.innerText="⚠ Theft Alert!";
     alertBox.classList.add("alert-active");
 
+    let dot=document.getElementById("radarDot");
+    dot.style.left=Math.random()*200+"px";
+    dot.style.top=Math.random()*200+"px";
+    dot.style.opacity="1";
+
+    setTimeout(()=>{
+        alertBox.innerText="System Normal";
+        alertBox.classList.remove("alert-active");
+        dot.style.opacity="0";
+    },3000);
+
     alertCounter++;
     document.getElementById("alertCount").innerText=alertCounter;
 
     let zone=document.getElementById("zone").value;
     let time=new Date().toLocaleString();
-
     historyData.push({time,zone,status:"Theft Detected"});
     addHistory(time,zone);
-
-    setTimeout(()=>{
-        alertBox.innerText="System Normal";
-        alertBox.classList.remove("alert-active");
-    },3000);
 }
 
 function addHistory(time,zone){
@@ -317,16 +309,9 @@ function addHistory(time,zone){
 }
 
 function exportCSV(){
-    if(historyData.length===0){
-        alert("No data to export");
-        return;
-    }
-
+    if(historyData.length===0){alert("No data");return;}
     let csv="Time,Zone,Status\n";
-    historyData.forEach(item=>{
-        csv+=`${item.time},${item.zone},${item.status}\n`;
-    });
-
+    historyData.forEach(item=>{csv+=`${item.time},${item.zone},${item.status}\n`;});
     let blob=new Blob([csv],{type:"text/csv"});
     let link=document.createElement("a");
     link.href=URL.createObjectURL(blob);
