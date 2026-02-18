@@ -140,8 +140,7 @@ function login(){
         document.getElementById("loginStatus").innerText="Wrong Password";
     }
 }
-
-function startMonitoring(){
+    function startMonitoring(){
     if(localStorage.getItem("adminLogged")!=="true"){
         alert("Login First!");
         return;
@@ -150,12 +149,13 @@ function startMonitoring(){
     if(monitoring) return;
 
     navigator.mediaDevices.getUserMedia({
-    audio:{
-        echoCancellation:false,
-        noiseSuppression:false,
-        autoGainControl:false
-    }
-}).then(stream=>{
+        audio:{
+            echoCancellation:false,
+            noiseSuppression:false,
+            autoGainControl:false
+        }
+    })
+    .then(stream=>{
         audioContext=new (window.AudioContext || window.webkitAudioContext)();
         analyser=audioContext.createAnalyser();
         microphone=audioContext.createMediaStreamSource(stream);
@@ -172,7 +172,8 @@ function startMonitoring(){
     .catch(()=>{
         alert("Microphone permission denied or not supported.");
     });
-}
+    }
+    
     function monitorSound(){
     if(!monitoring) return;
 
