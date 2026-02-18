@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>AI Electricity Theft Detection - Advanced</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{
+    margin:0;
+    font-family:Segoe UI, sans-serif;
+    background:#0f172a;
+    color:white;
+}
+header{
+    background:#1e293b;
+    padding:15px;
+    text-align:center;
+    font-size:22px;
+    font-weight:bold;
+}
+.container{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+    gap:20px;
+    padding:20px;
+}
+.card{
+    background:#1e293b;
+    padding:20px;
+    border-radius:12px;
+}
+button{
+    padding:10px 20px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#2563eb;
+    color:white;
+    font-weight:bold;
+}
+input,select{
+    padding:8px;
+    border-radius:6px;
+    border:none;
+}
+.alert-active{
+    background:#7f1d1d !important;
+    animation:blink 1s infinite;
+}
+@keyframes blink{
+    0%{opacity:1;}
+    50%{opacity:0.5;}
+    100%{opacity:1;}
+}
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+td,th{
+    border:1px solid #334155;
+    padding:6px;
+}
+</style>
+</head>
+
+<body>
+
+<header>AI Electricity Theft Detection - Advanced Dashboard</header>
+
+<div class="container">
+
+<div class="card">
+<h3>Admin Login</h3>
+<input type="password" id="adminPass" placeholder="Enter Admin Password">
+<button onclick="login()">Login</button>
+<p id="loginStatus"></p>
+</div>
+
+<div class="card">
+<h3>System Control</h3>
+<select id="zone">
+<option>Zone 1</option>
+<option>Zone 2</option>
+<option>Zone 3</option>
+</select>
+<br><br>
+<button onclick="startMonitoring()">Start Monitoring</button>
+<p id="status">Status: Not Started</p>
+<p>Total Alerts: <span id="alertCount">0</span></p>
+</div>
+
+<div class="card">
+<h3>Live Alert</h3>
+<div id="alertBox" style="padding:15px;border-radius:10px;background:#14532d;">
+System Normal
+</div>
+</div>
+
+<div class="card">
+<h3>Live Sound Graph</h3>
+<canvas id="soundChart"></canvas>
+</div>
+
+<div class="card">
+<h3>Alert History</h3>
+<button onclick="exportCSV()">Export CSV</button>
+<table>
+<thead>
+<tr>
+<th>Time</th>
+<th>Zone</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody id="historyTable"></tbody>
+</table>
+</div>
+
+</div>
+
+<script>
+let audioContext;
+let analyser;
+let microphone;
+let dataArray;
+let monitoring=false;
+let alertCounter=0;
+let historyData=[];
+let chart;
+let lastAlertTime=0;
+
+function login(){
+    let pass=document.getElementById("adminPass").value;
+    if(pass==="admin123"){
+        localStorage.setItem("adminLogged","true");
+        document.getElementById("loginStatus").innerText="Login Successful";
+    }else{
+        document.getElementById("loginStatus").innerText="Wrong Password";
+    }
+}
+
+function startMonitoring(){
+    if(localStorage.getItem("adminLogged")!=="true"){
+        alert("Login First!");
+        return;
+    }
+
+    if(monitoring) return;
+
+    navigator.mediaDevices.getUserMedia({audio:true})
+    .then(stream=>{
+        audioContext=new (window.AudioContext || window.webkitAudioContext)();
+        analyser=audioContext.createAnalyser();
+        microphone=audioContext.createMediaStreamSource(stream);
+        microphone.connect(analyser);
+
+        analyser.fftSize=256;
+        dataArray=new Uint8Array(analyser.frequencyBinCount);
+
+        monitoring=true;
+        document.getElementById("status").innerText="Monitoring...";
+        initChart();
+        monitorSound();
+    })
+    .catch(()=>{
+        alert("Microphone permission denied or not supported.");
+    });
+}
+
+function initChart(){
+    const ctx=document.getElementById('soundChart').getContext('2d');
+    chart=new Chart(ctx,{
+        type:'line',
+        data:{
+            labels:[],
+            datasets:[{
+                label:'High Frequency Level',
+                data:[],
+                borderWidth:2
+            }]
+        },
+        options:{
+            animation:false,
+            responsive:true,
+            scales:{
+                y:{beginAtZero:true}
+            }
+        }
+    });
+}
+
+function monitorSound(){
+    if(!monitoring) return;
+
+    analyser.getByteFrequencyData(dataArray);
+
+    let highFreqSum=0;
+    for(let i=40;i<100;i++){
+        highFreqSum+=dataArray[i];
+    }
+
+    let avg=highFreqSum/60;
+
+    updateChart(avg);
+
+    let now=Date.now();
+    if(avg>85 && now-lastAlertTime>4000){
+        lastAlertTime=now;
+        triggerAlert();
+    }
+
+    requestAnimationFrame(monitorSound);
+}
+
+function updateChart(value){
+    if(!chart) return;
+
+    if(chart.data.labels.length>40){
+        chart.data.labels.shift();
+        chart.data.datasets[0].data.shift();
+    }
+
+    chart.data.labels.push('');
+    chart.data.datasets[0].data.push(value);
+    chart.update();
+}
+
+function triggerAlert(){
+    let alertBox=document.getElementById("alertBox");
+    alertBox.innerText="⚠ Theft Alert!";
+    alertBox.classList.add("alert-active");
+
+    alertCounter++;
+    document.getElementById("alertCount").innerText=alertCounter;
+
+    let zone=document.getElementById("zone").value;
+    let time=new Date().toLocaleString();
+
+    historyData.push({time,zone,status:"Theft Detected"});
+    addHistory(time,zone);
+
+    setTimeout(()=>{
+        alertBox.innerText="System Normal";
+        alertBox.classList.remove("alert-active");
+    },3000);
+}
+
+function addHistory(time,zone){
+    let row=document.createElement("tr");
+    row.innerHTML=`<td>${time}</td><td>${zone}</td><td>Theft Detected</td>`;
+    document.getElementById("historyTable").prepend(row);
+}
+
+function exportCSV(){
+    if(historyData.length===0){
+        alert("No data to export");
+        return;
+    }
+
+    let csv="Time,Zone,Status\n";
+    historyData.forEach(item=>{
+        csv+=`${item.time},${item.zone},${item.status}\n`;
+    });
+
+    let blob=new Blob([csv],{type:"text/csv"});
+    let link=document.createElement("a");
+    link.href=URL.createObjectURL(blob);
+    link.download="alert_report.csv";
+    link.click();
+}
+</script>
+
+</body>
+</html>
