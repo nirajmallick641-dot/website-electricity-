@@ -168,6 +168,31 @@ function startMonitoring(){
         alert("Microphone permission denied or not supported.");
     });
 }
+    function monitorSound(){
+    if(!monitoring) return;
+
+    analyser.getByteFrequencyData(dataArray);
+
+    let sum = 0;
+    for(let i=0;i<dataArray.length;i++){
+        sum += dataArray[i];
+    }
+
+    let avg = sum / dataArray.length;
+
+    updateChart(avg);
+
+    let now = Date.now();
+
+    // Lower threshold for better detection
+    if(avg > 40 && now - lastAlertTime > 3000){
+        lastAlertTime = now;
+        triggerAlert();
+    }
+
+    requestAnimationFrame(monitorSound);
+    }
+    
 
 function initChart(){
     const ctx=document.getElementById('soundChart').getContext('2d');
@@ -191,28 +216,6 @@ function initChart(){
     });
 }
 
-function monitorSound(){
-    if(!monitoring) return;
-
-    analyser.getByteFrequencyData(dataArray);
-
-    let highFreqSum=0;
-    for(let i=40;i<100;i++){
-        highFreqSum+=dataArray[i];
-    }
-
-    let avg=highFreqSum/60;
-
-    updateChart(avg);
-
-    let now=Date.now();
-    if(avg>85 && now-lastAlertTime>4000){
-        lastAlertTime=now;
-        triggerAlert();
-    }
-
-    requestAnimationFrame(monitorSound);
-}
 
 function updateChart(value){
     if(!chart) return;
