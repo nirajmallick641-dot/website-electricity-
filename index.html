@@ -149,8 +149,13 @@ function startMonitoring(){
 
     if(monitoring) return;
 
-    navigator.mediaDevices.getUserMedia({audio:true})
-    .then(stream=>{
+    navigator.mediaDevices.getUserMedia({
+    audio:{
+        echoCancellation:false,
+        noiseSuppression:false,
+        autoGainControl:false
+    }
+}).then(stream=>{
         audioContext=new (window.AudioContext || window.webkitAudioContext)();
         analyser=audioContext.createAnalyser();
         microphone=audioContext.createMediaStreamSource(stream);
