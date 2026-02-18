@@ -7,61 +7,115 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap');
+
 body{
     margin:0;
-    font-family:Segoe UI, sans-serif;
-    background:#0f172a;
+    font-family:'Orbitron', sans-serif;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    background-size: 400% 400%;
+    animation: gradientMove 15s ease infinite;
     color:white;
 }
-header{
-    background:#1e293b;
-    padding:15px;
-    text-align:center;
-    font-size:22px;
-    font-weight:bold;
+
+@keyframes gradientMove {
+    0%{background-position:0% 50%;}
+    50%{background-position:100% 50%;}
+    100%{background-position:0% 50%;}
 }
+
+header{
+    padding:20px;
+    text-align:center;
+    font-size:24px;
+    letter-spacing:2px;
+    background: rgba(0,0,0,0.3);
+    backdrop-filter: blur(10px);
+    border-bottom:1px solid rgba(255,255,255,0.2);
+}
+
 .container{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
-    gap:20px;
-    padding:20px;
+    grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+    gap:25px;
+    padding:30px;
 }
+
 .card{
-    background:#1e293b;
-    padding:20px;
-    border-radius:12px;
+    background: rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.2);
+    border-radius:20px;
+    padding:25px;
+    backdrop-filter: blur(15px);
+    box-shadow: 0 0 20px rgba(0,255,255,0.2);
+    transition: all 0.3s ease;
 }
+
+.card:hover{
+    transform: translateY(-5px);
+    box-shadow: 0 0 30px rgba(0,255,255,0.6);
+}
+
 button{
-    padding:10px 20px;
+    padding:10px 22px;
     border:none;
-    border-radius:8px;
+    border-radius:30px;
     cursor:pointer;
-    background:#2563eb;
-    color:white;
     font-weight:bold;
+    background: linear-gradient(45deg, #00f5ff, #0088ff);
+    color:black;
+    transition: 0.3s ease;
+    box-shadow:0 0 15px #00f5ff;
 }
+
+button:hover{
+    transform: scale(1.05);
+    box-shadow:0 0 25px #00f5ff;
+}
+
 input,select{
-    padding:8px;
-    border-radius:6px;
+    padding:10px;
+    border-radius:20px;
     border:none;
+    outline:none;
+    background: rgba(255,255,255,0.15);
+    color:white;
+    width:100%;
+    margin-top:10px;
 }
+
 .alert-active{
-    background:#7f1d1d !important;
-    animation:blink 1s infinite;
+    background: linear-gradient(45deg, #ff0000, #ff6a00) !important;
+    animation: pulse 1s infinite;
 }
-@keyframes blink{
-    0%{opacity:1;}
-    50%{opacity:0.5;}
-    100%{opacity:1;}
+
+@keyframes pulse{
+    0%{box-shadow:0 0 10px red;}
+    50%{box-shadow:0 0 30px red;}
+    100%{box-shadow:0 0 10px red;}
 }
+
 table{
     width:100%;
     border-collapse:collapse;
+    margin-top:15px;
 }
+
 td,th{
-    border:1px solid #334155;
-    padding:6px;
+    border:1px solid rgba(255,255,255,0.2);
+    padding:8px;
+    text-align:center;
 }
+
+#alertBox{
+    padding:15px;
+    border-radius:15px;
+    background: linear-gradient(45deg, #00ff99, #00cc66);
+    font-weight:bold;
+    text-align:center;
+    box-shadow:0 0 20px #00ff99;
+                     }
+    
 </style>
 </head>
 
